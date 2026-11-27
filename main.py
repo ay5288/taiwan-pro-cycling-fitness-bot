@@ -68,7 +68,7 @@ def get_user_name(uid: str):
 
 @app.get("/")
 def root():
-    return {"status": "Online", "service": "Taiwan Pro Cycling & Fitness Cockpit App 3.0"}
+    return {"status": "Online", "service": "Taiwan Pro Cycling & Fitness Cockpit App 4.0"}
 
 @app.post("/api/bike_add")
 async def web_bike_add(
@@ -224,6 +224,17 @@ def pro_cycling_fitness_cockpit(msg: str = ""):
         <button type="button" class="btn btn-gold" style="width:100%;margin-top:10px;" onclick="calcPsi()">⚡ 精算前後輪胎壓 PSI</button>
         <div id="psi-res" style="display:none;background:rgba(9,13,22,0.85);padding:12px;border-radius:12px;margin-top:10px;font-size:12px;color:#FEF3C7;border-left:3px solid #F59E0B;"></div>
       </div>
+
+      <div class="card">
+        <div style="font-size:16px;font-weight:900;color:#34D399;margin-bottom:4px;">🥤 騎行後蛋白質 ＆ 電解質營養精算器</div>
+        <div style="font-size:12px;color:#94A3B8;">輸入本次騎行公里數與體重，精算超商增肌減脂黃金修復餐：</div>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <input id="nut-km" type="number" class="field" placeholder="騎行 km (如 25)" style="margin-top:0;"/>
+          <input id="nut-w" type="number" class="field" placeholder="體重 kg (如 68)" style="margin-top:0;"/>
+        </div>
+        <button type="button" class="btn btn-green" style="width:100%;margin-top:10px;" onclick="calcNutrition()">🥗 精算運動後蛋白質 ＆ 電解質</button>
+        <div id="nut-res" style="display:none;background:rgba(9,13,22,0.88);padding:12px;border-radius:12px;margin-top:10px;font-size:12px;line-height:1.7;color:#D1FAE5;border-left:3px solid #10B981;"></div>
+      </div>
     </div></div>
 
     <div id="page-logs" class="page"><div class="wrap">
@@ -247,7 +258,7 @@ def pro_cycling_fitness_cockpit(msg: str = ""):
 
     <div class="tabbar">
       <div class="tab active" onclick="switchTab('cockpit', this)">📟 碼表與路線</div>
-      <div class="tab" onclick="switchTab('fit', this)">💓 心率與胎壓</div>
+      <div class="tab" onclick="switchTab('fit', this)">💓 心率與營養</div>
       <div class="tab" onclick="switchTab('logs', this)"><span class="tab-cta">🏆 訓練日誌</span></div>
     </div>
     <script>
@@ -353,6 +364,18 @@ def pro_cycling_fitness_cockpit(msg: str = ""):
         box.innerText = `🛞 建議前輪胎壓：${{front}} PSI · 後輪胎壓：${{rear}} PSI（兼顧抓地力與滾動速度！）`;
       }}
 
+      function calcNutrition() {{
+        const km = Number(document.getElementById('nut-km').value || 25);
+        const w = Number(document.getElementById('nut-w').value || 68);
+        const mins = Math.round(km * 2.8);
+        const pro = Math.round(w * (km >= 30 ? 0.35 : 0.25));
+        const carb = Math.round(w * (km >= 30 ? 0.8 : 0.5));
+        const water = Math.round(mins * 11 + 300);
+        const box = document.getElementById('nut-res');
+        box.style.display = 'block';
+        box.innerHTML = `🥗 <b>騎行 ${{km}} km 黃金 30 分鐘修復營養處方：</b><br>• 🥩 優質蛋白質：<b>${{pro}} g</b>（約無糖豆漿 1 瓶 ＋ 茶葉蛋 2 顆）<br>• 🍌 肝醣回補碳水：<b>${{carb}} g</b>（約中型香蕉 1 根或地瓜 1 條）<br>• 💧 防抽筋水分／電解質：<b>${{water}} ml</b>（含鈉鉀電解質飲）`;
+      }}
+
       function filterRoute(tag, el) {{
         curTag = tag;
         document.querySelectorAll('#page-cockpit > .wrap > .chips .chip').forEach(x => x.classList.remove('active'));
@@ -364,8 +387,8 @@ def pro_cycling_fitness_cockpit(msg: str = ""):
         const list = ROUTES.filter(r => curTag === 'all' || r.tag === curTag);
         document.getElementById('route-box').innerHTML = list.map(r => {{
           const navU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.map_q)}}`;
-          const wcU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ')[0] + ' 公廁')}}`;
-          const supU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ')[0] + ' 飲水機 便利商店')}}`;
+          const wcU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ') + ' 公廁')}}`;
+          const supU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ') + ' 飲水機 便利商店')}}`;
           return `<div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:11px;font-weight:800;color:#38BDF8;background:rgba(56,189,248,0.15);padding:3px 9px;border-radius:8px;">${{r.tag}} · ${{r.level}}</span>
@@ -401,7 +424,7 @@ def make_bike_pro_card():
     S = chr(47)
     app_uri = f"{RENDER_BASE_URL}/bike_pro?openExternalBrowser=1"
     log_uri = f"https:{S}{S}line.me{S}R{S}oaMessage{S}{LINE_BOT_BASIC_ID}{S}?{urllib.parse.quote('騎車 22公里 五股八里線')}"
-    hr_uri = f"https:{S}{S}line.me{S}R{S}oaMessage{S}{LINE_BOT_BASIC_ID}{S}?{urllib.parse.quote('燃脂心率 35歲')}"
+    nut_uri = f"https:{S}{S}line.me{S}R{S}oaMessage{S}{LINE_BOT_BASIC_ID}{S}?{urllib.parse.quote('補給 25公里 68公斤')}"
     ride_invite = urllib.parse.quote(f"🚴‍♂️【單車運動健身約騎召集令！】\n📍 集合點：五股微風運河成蘆橋下\n🗺️ 路線：五股 ➡️ 八里左岸來回 22 km（沿途公廁／飲水補給已查好）\n📲 開啟 GPS 單車碼表 ＆ 路線戰情室：\nhttps:{S}{S}line.me{S}R{S}ti{S}p{S}{LINE_BOT_BASIC_ID}")
     share_uri = f"https:{S}{S}line.me{S}R{S}share?text={ride_invite}"
 
@@ -413,7 +436,7 @@ def make_bike_pro_card():
         size="mega",
         header=BoxComponent(layout="vertical", background_color="#090C12", padding_all="16px", contents=[
             TextComponent(text="🚴‍♂️ 單車騎行碼表 ＆ 健身戰情室", weight="bold", size="md", color="#38BDF8", wrap=True),
-            TextComponent(text="GPS 碼表測速 · 燃脂心率 · 路線廁所補給", size="xs", color="#FBBF24", weight="bold", wrap=True, margin="xs")
+            TextComponent(text="GPS 碼表測速 · 燃脂心率 · 騎後營養精算", size="xs", color="#FBBF24", weight="bold", wrap=True, margin="xs")
         ]),
         body=BoxComponent(layout="vertical", spacing="sm", background_color="#FFFFFF", contents=[
             BoxComponent(layout="horizontal", spacing="sm", contents=[
@@ -438,8 +461,8 @@ def make_bike_pro_card():
                 ButtonComponent(style="secondary", height="sm", action=MessageAction(label="🗺️ 查路線", text="單車路線"))
             ]),
             BoxComponent(layout="horizontal", spacing="sm", contents=[
-                ButtonComponent(style="secondary", height="sm", action=URIAction(label="💓 算心率", uri=hr_uri)),
-                ButtonComponent(style="primary", color="#D97706", height="sm", action=MessageAction(label="🛞 算胎壓", text="胎壓 68公斤"))
+                ButtonComponent(style="primary", color="#10B981", height="sm", action=URIAction(label="🥗 算營養", uri=nut_uri)),
+                ButtonComponent(style="primary", color="#D97706", height="sm", action=MessageAction(label="💓 算心率", text="燃脂心率 35歲"))
             ])
         ])
     )
@@ -451,7 +474,7 @@ def make_bike_pro_card():
             ButtonComponent(style="primary", color="#10B981", height="sm", action=URIAction(label="💧 飲水補給", uri=f"https:{S}{S}{host}{S}?q=自行車租借站+飲水機"))
         ]),
         BoxComponent(layout="horizontal", spacing="sm", contents=[
-            ButtonComponent(style="secondary", height="sm", action=URIAction(label="🛠️ 單車維修", uri=f"https:{S}{S}{host}{S}?q=自行車行+維修")),
+            ButtonComponent(style="secondary", height="sm", action=URIAction(label="🛞 算胎壓", text="胎壓 68公斤")),
             ButtonComponent(style="secondary", height="sm", action=MessageAction(label="✅ 出發安檢", text="出發安檢"))
         ]),
         ButtonComponent(style="primary", color="#2563EB", height="sm", action=URIAction(label="📢 發送 LINE 車友約騎召集令", uri=share_uri))
@@ -463,7 +486,7 @@ def make_bike_pro_card():
         size="mega",
         header=BoxComponent(layout="vertical", background_color="#090C12", padding_all="16px", contents=[
             TextComponent(text="🛠️ 沿途補給救援 ＆ 約騎召集令", weight="bold", size="md", color="#38BDF8", wrap=True),
-            TextComponent(text="公廁、飲水機、單車維修與出發前5項安檢", size="xs", color="#FBBF24", weight="bold", wrap=True, margin="xs")
+            TextComponent(text="公廁、飲水機、胎壓精算與出發前5項安檢", size="xs", color="#FBBF24", weight="bold", wrap=True, margin="xs")
         ]),
         body=BoxComponent(layout="vertical", spacing="xs", background_color="#FFFFFF", contents=[
             TextComponent(text="👈 向左滑動返回「GPS 碼表與燃脂戰情室」", size="xxs", color="#64748B", weight="bold")
@@ -522,6 +545,28 @@ def on_text(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=chk))
             return
 
+        if any(k in txt for k in ["營養", "蛋白質", "電解質", "飲食", "吃什麼", "補給"]):
+            nums = re.findall(r"\d+(?:\.\d+)?", txt)
+            km = float(next(iter(nums), 25.0))
+            w = float(nums[1]) if len(nums) >= 2 else 68.0
+            mins = round(km * 2.8)
+            pro = round(w * (0.35 if km >= 30 else 0.25))
+            carb = round(w * (0.8 if km >= 30 else 0.5))
+            water = round(mins * 11 + 300)
+            nut_msg = (
+                f"🥗【騎行 {int(km)} km（體重 {int(w)}kg）運動後營養精算】\n"
+                f"• 🥩 優質蛋白質：{pro} g（修復腿部肌纖維）\n"
+                f"• 🍌 黃金碳水：{carb} g（快速回補肝醣不累垮）\n"
+                f"• 💧 防抽筋水分＋電解質：{water} ml\n"
+                "🏪 7-11／全家實戰組合：無糖高纖豆漿 450ml ＋ 茶葉蛋 2 顆 ＋ 香蕉 1 根 ＋ 運動飲料兌水！"
+            )
+            card = make_bike_pro_card()
+            line_bot_api.reply_message(event.reply_token, [
+                TextSendMessage(text=nut_msg),
+                FlexSendMessage(alt_text="🚴‍♂️ 單車騎行碼表 ＆ 健身戰情室 Pro", contents=card)
+            ])
+            return
+
         if "心率" in txt:
             m_age = re.search(r"(\d{1,3})", txt)
             age = int(m_age.group(1)) if m_age else 35
@@ -541,7 +586,7 @@ def on_text(event):
             line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"🛞【體重 {w} kg 單車建議胎壓 PSI】\n• 公路車 700x28c：前輪 {f28} PSI / 後輪 {r28} PSI\n• 公路車 700x25c：前輪 {f25} PSI / 後輪 {r25} PSI\n💡 小提醒：雨天或河濱地濕時，可適度降低 5 PSI 增加抓地力！"))
             return
 
-        if any(k in txt for k in ["騎車", "單車", "公里", "km"]):
+        if txt != "單車" and any(k in txt for k in ["騎車", "公里", "km", "紀錄", "記錄"]):
             m_km = re.search(r"(\d+(?:\.\d+)?)", txt)
             km = float(m_km.group(1)) if m_km else 20.0
             is_climb = any(k in txt for k in ["爬坡", "山", "觀音山", "風櫃嘴"])
@@ -552,7 +597,11 @@ def on_text(event):
             now_t = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%m/%d %H:%M")
             BIKE_FIT_LOGS.insert(0, {"rec_id": bid, "mode": "⛰️ 爬坡間歇訓練" if is_climb else "🚴‍♂️ 公路車有氧耐力", "route": txt[:20], "km": round(km, 1), "mins": mins, "kcal": kcal, "time": now_t})
             call_sheet({"action": "add_bike", "rec_id": bid, "user_id": uid, "user_name": uname, "mode": "單車訓練", "route": txt[:20], "dist_km": km, "mins": mins, "kcal": kcal})
-            line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"🏆 太強了！單車運動數據已寫入雲端日誌：\n• 騎行里程：{round(km, 1)} km（約 {mins} 分鐘）\n• 燃脂熱量：約 {kcal} kcal\n• 減碳貢獻：{co2} kg CO₂\n點擊下方卡片開啟「GPS 單車碼表 ＆ 路線戰情室」查看完整統計！"))
+            card = make_bike_pro_card()
+            line_bot_api.reply_message(event.reply_token, [
+                TextSendMessage(text=f"🏆 太強了！單車運動數據已寫入雲端日誌：\n• 騎行里程：{round(km, 1)} km（約 {mins} 分鐘）\n• 燃脂熱量：約 {kcal} kcal\n• 減碳貢獻：{co2} kg CO₂"),
+                FlexSendMessage(alt_text="🚴‍♂️ 單車騎行碼表 ＆ 健身戰情室 Pro", contents=card)
+            ])
             return
 
         card = make_bike_pro_card()

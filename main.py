@@ -66,9 +66,9 @@ def get_user_name(uid: str):
     except Exception:
         return "單車騎士"
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def root():
-    return {"status": "Online", "service": "Taiwan Pro Cycling & Fitness Cockpit App 4.0"}
+    return {"status": "Online", "service": "Taiwan Pro Cycling & Fitness Cockpit App 4.5"}
 
 @app.post("/api/bike_add")
 async def web_bike_add(
@@ -474,7 +474,7 @@ def make_bike_pro_card():
             ButtonComponent(style="primary", color="#10B981", height="sm", action=URIAction(label="💧 飲水補給", uri=f"https:{S}{S}{host}{S}?q=自行車租借站+飲水機"))
         ]),
         BoxComponent(layout="horizontal", spacing="sm", contents=[
-            ButtonComponent(style="secondary", height="sm", action=URIAction(label="🛞 算胎壓", text="胎壓 68公斤")),
+            ButtonComponent(style="secondary", height="sm", action=MessageAction(label="🛞 算胎壓", text="胎壓 68公斤")),
             ButtonComponent(style="secondary", height="sm", action=MessageAction(label="✅ 出發安檢", text="出發安檢"))
         ]),
         ButtonComponent(style="primary", color="#2563EB", height="sm", action=URIAction(label="📢 發送 LINE 車友約騎召集令", uri=share_uri))
@@ -548,7 +548,7 @@ def on_text(event):
         if any(k in txt for k in ["營養", "蛋白質", "電解質", "飲食", "吃什麼", "補給"]):
             nums = re.findall(r"\d+(?:\.\d+)?", txt)
             km = float(next(iter(nums), 25.0))
-            w = float(nums[1]) if len(nums) >= 2 else 68.0
+            w = float(nums) if len(nums) >= 2 else 68.0
             mins = round(km * 2.8)
             pro = round(w * (0.35 if km >= 30 else 0.25))
             carb = round(w * (0.8 if km >= 30 else 0.5))

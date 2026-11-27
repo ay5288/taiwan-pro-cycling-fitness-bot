@@ -68,7 +68,7 @@ def get_user_name(uid: str):
 
 @app.api_route("/", methods=["GET", "HEAD"])
 def root():
-    return {"status": "Online", "service": "Taiwan Pro Cycling & Fitness Cockpit App 4.5"}
+    return {"status": "Online", "service": "Taiwan Pro Cycling & Fitness Cockpit App 5.0"}
 
 @app.post("/api/bike_add")
 async def web_bike_add(
@@ -387,8 +387,8 @@ def pro_cycling_fitness_cockpit(msg: str = ""):
         const list = ROUTES.filter(r => curTag === 'all' || r.tag === curTag);
         document.getElementById('route-box').innerHTML = list.map(r => {{
           const navU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.map_q)}}`;
-          const wcU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ') + ' 公廁')}}`;
-          const supU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ') + ' 飲水機 便利商店')}}`;
+          const wcU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ')[0] + ' 公廁')}}`;
+          const supU = `https:{S}{S}://google.com{S}?q=${{encodeURIComponent(r.name.split(' ')[0] + ' 飲水機 便利商店')}}`;
           return `<div class="card">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <span style="font-size:11px;font-weight:800;color:#38BDF8;background:rgba(56,189,248,0.15);padding:3px 9px;border-radius:8px;">${{r.tag}} · ${{r.level}}</span>
@@ -423,9 +423,7 @@ def pro_cycling_fitness_cockpit(msg: str = ""):
 def make_bike_pro_card():
     S = chr(47)
     app_uri = f"{RENDER_BASE_URL}/bike_pro?openExternalBrowser=1"
-    log_uri = f"https:{S}{S}line.me{S}R{S}oaMessage{S}{LINE_BOT_BASIC_ID}{S}?{urllib.parse.quote('騎車 22公里 五股八里線')}"
-    nut_uri = f"https:{S}{S}line.me{S}R{S}oaMessage{S}{LINE_BOT_BASIC_ID}{S}?{urllib.parse.quote('補給 25公里 68公斤')}"
-    ride_invite = urllib.parse.quote(f"🚴‍♂️【單車運動健身約騎召集令！】\n📍 集合點：五股微風運河成蘆橋下\n🗺️ 路線：五股 ➡️ 八里左岸來回 22 km（沿途公廁／飲水補給已查好）\n📲 開啟 GPS 單車碼表 ＆ 路線戰情室：\nhttps:{S}{S}line.me{S}R{S}ti{S}p{S}{LINE_BOT_BASIC_ID}")
+    ride_invite = urllib.parse.quote("🚴‍♂️【單車運動健身約騎召集令！】\n📍 集合點：五股微風運河成蘆橋下\n🗺️ 路線：五股 ➡️ 八里左岸來回 22 km（沿途公廁／飲水補給已查好）\n📲 立即開啟 GPS 單車碼表 ＆ 路線戰情室！")
     share_uri = f"https:{S}{S}line.me{S}R{S}share?text={ride_invite}"
 
     tot_km = round(sum(float(x.get("km", 0)) for x in BIKE_FIT_LOGS), 1)
@@ -457,11 +455,11 @@ def make_bike_pro_card():
         footer=BoxComponent(layout="vertical", spacing="sm", background_color="#FFFFFF", contents=[
             ButtonComponent(style="primary", color="#0284C7", height="sm", action=URIAction(label="📟 開啟 GPS 碼表 ＆ 路線戰情室", uri=app_uri)),
             BoxComponent(layout="horizontal", spacing="sm", contents=[
-                ButtonComponent(style="primary", color="#131A28", height="sm", action=URIAction(label="🚴‍♂️ 記里程", uri=log_uri)),
+                ButtonComponent(style="primary", color="#131A28", height="sm", action=MessageAction(label="🚴‍♂️ 記22km", text="騎車 22公里 五股八里線")),
                 ButtonComponent(style="secondary", height="sm", action=MessageAction(label="🗺️ 查路線", text="單車路線"))
             ]),
             BoxComponent(layout="horizontal", spacing="sm", contents=[
-                ButtonComponent(style="primary", color="#10B981", height="sm", action=URIAction(label="🥗 算營養", uri=nut_uri)),
+                ButtonComponent(style="primary", color="#10B981", height="sm", action=MessageAction(label="🥗 算營養", text="補給 25公里 68公斤")),
                 ButtonComponent(style="primary", color="#D97706", height="sm", action=MessageAction(label="💓 算心率", text="燃脂心率 35歲"))
             ])
         ])
@@ -470,8 +468,8 @@ def make_bike_pro_card():
     host = "maps." + "google.com"
     tools_btns = [
         BoxComponent(layout="horizontal", spacing="sm", contents=[
-            ButtonComponent(style="primary", color="#0284C7", height="sm", action=URIAction(label="🚻 沿途公廁", uri=f"https:{S}{S}{host}{S}?q=河濱公園+公廁")),
-            ButtonComponent(style="primary", color="#10B981", height="sm", action=URIAction(label="💧 飲水補給", uri=f"https:{S}{S}{host}{S}?q=自行車租借站+飲水機"))
+            ButtonComponent(style="primary", color="#0284C7", height="sm", action=URIAction(label="🚻 沿途公廁", uri=f"https:{S}{S}{host}{S}?q=river+park+toilet")),
+            ButtonComponent(style="primary", color="#10B981", height="sm", action=URIAction(label="💧 飲水補給", uri=f"https:{S}{S}{host}{S}?q=bike+rental+station"))
         ]),
         BoxComponent(layout="horizontal", spacing="sm", contents=[
             ButtonComponent(style="secondary", height="sm", action=MessageAction(label="🛞 算胎壓", text="胎壓 68公斤")),
@@ -514,10 +512,10 @@ def on_location(event):
     S = chr(47)
     lat, lon = event.message.latitude, event.message.longitude
     host = "maps." + "google.com"
-    wc_u = f"https:{S}{S}{host}{S}?q=河濱公園+公廁@{lat},{lon}"
-    sup_u = f"https:{S}{S}{host}{S}?q=自行車租借站+飲水機@{lat},{lon}"
-    fix_u = f"https:{S}{S}{host}{S}?q=自行車行+維修@{lat},{lon}"
-    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"📍 已定位您的騎行座標！\n🚻 附近公廁導航：\n{wc_u}\n💧 飲水機與租借站：\n{sup_u}\n🛠️ 附近單車維修救援：\n{fix_u}"))
+    wc_u = f"https:{S}{S}{host}{S}?q=toilet@{lat},{lon}"
+    sup_u = f"https:{S}{S}{host}{S}?q=convenience+store@{lat},{lon}"
+    fix_u = f"https:{S}{S}{host}{S}?q=bicycle+shop@{lat},{lon}"
+    line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"📍 已定位您的騎行座標！\n🚻 附近公廁導航：\n{wc_u}\n💧 飲水機與超商補給：\n{sup_u}\n🛠️ 附近單車維修救援：\n{fix_u}"))
 
 @handler.add(MessageEvent, message=TextMessage)
 def on_text(event):
@@ -548,7 +546,7 @@ def on_text(event):
         if any(k in txt for k in ["營養", "蛋白質", "電解質", "飲食", "吃什麼", "補給"]):
             nums = re.findall(r"\d+(?:\.\d+)?", txt)
             km = float(next(iter(nums), 25.0))
-            w = float(nums) if len(nums) >= 2 else 68.0
+            w = float(nums[1]) if len(nums) >= 2 else 68.0
             mins = round(km * 2.8)
             pro = round(w * (0.35 if km >= 30 else 0.25))
             carb = round(w * (0.8 if km >= 30 else 0.5))
@@ -607,4 +605,4 @@ def on_text(event):
         card = make_bike_pro_card()
         line_bot_api.reply_message(event.reply_token, FlexSendMessage(alt_text="🚴‍♂️ 單車騎行碼表 ＆ 健身戰情室 Pro", contents=card))
     except Exception as e:
-        line_bot_api.reply_message(event.reply_token, TextSendMessage(text=f"🚴‍♂️ 系統小提示：{str(e)[:60]}（請輸入「單車」刷新畫面）"))
+        line_bot_api.push_message(uid, TextSendMessage(text=f"🚴‍♂️ 系統小提示：{str(e)[:80]}"))

@@ -18,7 +18,7 @@ GOOGLE_SHEET_API = "https://script.google.com/macros/s/AKfycbzQ-2cmIYBCQ1zlouCud
 # ⚠️ 2. 請填入這個單車健身機器人的 LINE 官方帳號 ID（包含 @ 符號，例如 @123abcde）
 LINE_BOT_BASIC_ID = "@090yvcoe"
 # ⚠️ 3. 請填入這個單車健身機器人的 Render 公開網址（結尾不要加斜線）
-RENDER_BASE_URL = "https://onrender.com"
+RENDER_BASE_URL = "https://taiwan-pro-cycling-fitness-bot.onrender.com"
 # ⚠️ 4. 可填入您的 Notion 單車安全帽／功率碼表／能量膠／運動水壺嚴選網址（未填自動隱藏）
 NOTION_BIKE_SHOP_URL = ""
 
